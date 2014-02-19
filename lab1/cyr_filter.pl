@@ -1,5 +1,5 @@
 #!/usr/bin/perl -w -CAS
 use utf8;
-$_ = join('', <>);
+$_ = lc join('', <>);
 s/[^а-я]//g;
 print;
