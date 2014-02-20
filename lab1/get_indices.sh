@@ -11,7 +11,7 @@ fi
 TEXT=$(cat)
 for i in $(seq $OFFSET $END); do
     for j in $(seq 1 $i); do
-        echo $TEXT | ./cyrillic_filter.pl | ./divide_vigenere.py $i $j | ./calculate_index.hs
+        echo $TEXT | ./filter.pl | ./divide_vigenere.py $i $j | ./calculate_index.hs
         echo -n " ";
     done;
     echo ""
