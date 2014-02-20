@@ -1,5 +1,5 @@
 #!/usr/bin/runhaskell
-import WordsStatistics
+import CharactersStatistics
 import Data.Ord
 import Data.List
 

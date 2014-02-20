@@ -1,5 +1,5 @@
 #!/usr/bin/runhaskell
-import WordsStatistics
+import CharactersStatistics
 
 nn_1 n = n * (n-1)
 
