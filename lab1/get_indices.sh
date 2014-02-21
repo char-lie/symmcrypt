@@ -1,17 +1,18 @@
-if [[ -z "$2" ]]; then
-    OFFSET=1
-else
-    OFFSET=$2
-fi
 if [[ -z "$1" ]]; then
-    END=30
+    START=1
 else
-    END=$1
+    START=$1
 fi
+if [[ -z "$2" ]]; then
+    END=$START
+else
+    END=$2
+fi
+make CalculateIndex >/dev/null 2>/dev/null
 TEXT=$(cat)
-for i in $(seq $OFFSET $END); do
+for i in $(seq $START $END); do
     for j in $(seq 1 $i); do
-        echo $TEXT | ./filter.pl | ./divide_vigenere.py $i $j | ./CalculateIndex.hs
+        echo $TEXT | ./filter.pl | ./divide_vigenere.py $i $j | ./CalculateIndex
         echo -n " ";
     done;
     echo ""
