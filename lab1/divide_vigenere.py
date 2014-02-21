@@ -11,5 +11,5 @@ if __name__ == '__main__':
         modulus = int(argv[1])
     if (len(argv)>2):
         offset  = int(argv[2])
-    str1 = raw_input() #.encode('utf-8')[offset::modulus]
+    str1 = raw_input()
     print unicode(str1,'utf-8')[offset::modulus].encode('utf-8')
