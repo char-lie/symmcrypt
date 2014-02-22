@@ -9,3 +9,7 @@ clean:
 CalculateIndex: CharactersStatistics.hs CalculateIndex.hs
 	ghc CalculateIndex.hs
 	make remove_garbage
+
+SortCharacters: CharactersStatistics.hs SortCharacters.hs
+	ghc SortCharacters.hs
+	make remove_garbage
