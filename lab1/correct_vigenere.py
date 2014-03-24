@@ -3,8 +3,8 @@
 from sys import stdin, argv
 
 def caesar_shift(character, shift):
-    char_number = (ord(character) - ord(u'а') + shift) % 32
-    return unichr(char_number + ord(u'а'))
+    char_number = (ord(character) - ord(u'a') + shift) % 26
+    return unichr(char_number + ord(u'a'))
 
 if __name__ == '__main__':
     offset=0
