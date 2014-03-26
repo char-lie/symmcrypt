@@ -17,19 +17,37 @@ def process_input(input_text, f):
 
 def print_usage():
     print '''USAGE:
-    %s SOURCE_LETTER DESTINATION_LETTER VIGENERE_KEY_LENGTH LETTER_POSITION
-or  %s LETTER_SHIFT VIGENERE_KEY_LENGTH LETTER_POSITION
+    %s SOURCE_LETTER DESTINATION_LETTER VIGENERE_KEY_LENGTH LETTER_POSITION [--key|-k]
+or  %s LETTER_SHIFT VIGENERE_KEY_LENGTH LETTER_POSITION [--key|-k]
 
     Text will be read from STDIN and printed to STDOUT
+        Flags:
+    --key|-k   First VIGENERE_KEY_LENGTH characters are symbols of key
+               and it needs to be corrected
     '''%(argv[0],argv[0])
+
+def process_character(offset,step):
+    def result(i,character):
+        if i<step:
+            if ((i-offset)%step is 0):
+                return caesar_shift(character,-shift) 
+            else:
+                return character
+        else:
+            if ((i-offset)%step is 0):
+                return caesar_shift(character,shift) 
+            else:
+                return character
+    return result
 
 if __name__ == '__main__':
     offset=0
     step=1
     shift=0
     cur_arg=2
+    key_first=False
     if (len(argv)>1):
-        if argv[1] == '--h' or argv[1] == '--help':
+        if argv[1] in ['-h', '--help']:
             print_usage()
             exit(0)
         try:
@@ -42,10 +60,22 @@ if __name__ == '__main__':
         cur_arg+=1
     if (len(argv)>cur_arg):
         offset=int(argv[cur_arg])
+        cur_arg+=1
+    if (len(argv)>cur_arg):
+        key_first = argv[cur_arg] in ['-k','--key']
+    if offset<step and key_first:
+        shift = -shift
     input_data = unicode(raw_input(), 'utf-8').strip()
+    output = u''
     if (shift is 0):
-        print input_data.encode('utf-8')
-    output = process_input(input_data,
-            lambda i, character:
-                caesar_shift(character,shift) if (i-offset%step is 0) else character)
+        output = input_data
+    else:
+        #output = process_input(input_data,process_character(offset,step))
+        output = process_input(input_data,
+                    lambda i,character:
+                        caesar_shift(character,
+                            (lambda: -shift if i<step and key_first else shift)())
+                                if ((i-offset)%step is 0)
+                        else character
+                    )
     print output.encode('utf-8')
