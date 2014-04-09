@@ -13,7 +13,7 @@ def print_usage():
 
 
 if __name__ == '__main__':
-    if len(argv)>1 and (argv[1] == '--h' or argv[1] == '--help'):
+    if len(argv)>1 and (argv[1] == '-h' or argv[1] == '--help'):
         print_usage()
         exit(0)
     input_data = unicode(raw_input(), 'utf-8').strip()
