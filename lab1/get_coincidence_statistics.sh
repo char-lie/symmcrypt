@@ -11,6 +11,5 @@ fi
 
 TEXT=$(cat)
 for i in $(seq $START $END); do
-    echo -n "$i: "
     echo $TEXT | ./calculate_coincidence_statistics.py $i
 done;

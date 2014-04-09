@@ -19,9 +19,15 @@ if __name__ == '__main__':
     input_data = unicode(raw_input(), 'utf-8').strip()
     if (len(argv)<2):
         print input_data.encode('utf-8')
+
     key = []
-    for i in range(1,len(argv)):
-        key.append(int(argv[i]))
+    if (argv[1] in ['-r','--random']):
+        for i in range(1,int(argv[2])+1):
+            key.append(i)
+    else:
+        for i in range(1,len(argv)):
+            key.append(int(argv[i]))
+
     output = process_input(input_data,
                 lambda i, character: caesar_shift(character,key[i%len(key)]))
     print output.encode('utf-8')
