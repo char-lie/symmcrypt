@@ -5,5 +5,5 @@ else
 fi
 TEXT=$(cat)
 for i in $(seq 1 $END); do
-    echo $TEXT | ./get_indices.sh $i | ./calculate_mean.py
+    echo $TEXT | ./calculate_indices.sh $i | ./calculate_mean.py
 done;
