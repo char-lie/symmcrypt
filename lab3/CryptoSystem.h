@@ -1,5 +1,6 @@
 #include <NTL/GF2X.h>
 #include <NTL/matrix.h>
+#include <NTL/vector.h>
 using namespace std;
 using namespace NTL;
 
@@ -10,9 +11,14 @@ struct CryptoSystem {
     GF2XModulus P;
     long generatorDegree;
     long maxPolynomial;
-    Mat<GF2X> polynomials;
-    Mat<long> weights;
-    Mat<double> K;
+    Vec<GF2X> iterationPolynomial;
+
+    static const long FunctionsCount = 2;
+    Vec<GF2X> polynomials[FunctionsCount];
+    Mat<GF2X> coordinateFunctions[FunctionsCount];
+    Vec<long> weights[FunctionsCount];
+
+    Vec<long> K[FunctionsCount];
 
     GF2X f(GF2X x) {
         return PowerMod(x, this->N, this->P);
@@ -23,51 +29,68 @@ struct CryptoSystem {
     }
 
     void generateIterationPolynomial () {
-        polynomials.kill();
-        polynomials.SetDims(this->maxPolynomial, 3);
+        iterationPolynomial.kill();
+        iterationPolynomial.SetLength(this->maxPolynomial);
         for (long i=0; i<this->maxPolynomial; i++) {
-            polynomials[i][0] = CryptoSystem::getPolynomial(i);
+            iterationPolynomial[i] = CryptoSystem::getPolynomial(i);
         }
     }
 
     void calculateF () {
+        polynomials[0].SetLength(this->maxPolynomial);
         for (long i=0; i<this->maxPolynomial; i++) {
-            polynomials[i][1] = this->f(polynomials[i][0]);
+            polynomials[0][i] = this->f(iterationPolynomial[i]);
         }
     }
 
     void calculateG () {
+        polynomials[1].SetLength(this->maxPolynomial);
         for (long i=0; i<this->maxPolynomial; i++) {
-            polynomials[i][2] = this->g(polynomials[i][0]);
+            polynomials[1][i] = this->g(iterationPolynomial[i]);
         }
     }
 
     void calculateWeights () {
-        this->weights.kill();
-        this->weights.SetDims(this->maxPolynomial, 2);
-        for (long i=0; i<this->maxPolynomial; i++) {
-            this->weights[i][0] = weight(this->polynomials[i][1]);
-            this->weights[i][1] = weight(this->polynomials[i][2]);
+        for (long i=0; i<this->FunctionsCount; i++) {
+            this->weights[i].kill();
+            this->weights[i].SetLength(this->maxPolynomial);
+            for (long j=0; j<this->maxPolynomial; j++) {
+                this->weights[i][j] = weight(this->polynomials[i][j]);
+            }
         }
     }
 
     void calculateErrorsCoefficients () {
-        this->K.kill();
-        this->K.SetDims(this->generatorDegree, 2);
-        GF2X currentPolynomial;
-        long summ;
         long tmp;
-        for (long functionNumber=0; functionNumber<2; functionNumber++) {
+        Vec<GF2X> currentPolynomial;
+        for (long functionNumber=0; functionNumber<FunctionsCount;
+                functionNumber++) {
+            this->K[functionNumber].kill();
+            this->K[functionNumber].SetLength(this->generatorDegree);
             for (long i=0; i<this->generatorDegree; i++) {
-                summ = 0;
-                for (long j=0; j<this->maxPolynomial; j++) {
-                    tmp = this->weights[functionNumber+1][j];
-                    if (((j>>i)^1)&1 == 1) {
-                        tmp ^= this->weights[functionNumber+1][1<<i];
+                K[functionNumber][i] = 0;
+                for (long x=0; x<this->maxPolynomial; x++) {
+                    currentPolynomial =
+                        this->coordinateFunctions[functionNumber][i];
+                    if(currentPolynomial[x] + // plus is xor: F2(+,*)
+                            currentPolynomial[x ^ (1<<i)] == 1) {
+                        K[functionNumber][i]++;
                     }
-                    summ += tmp&1;
                 }
-                K[i][functionNumber] = ((double)summ);///this->maxPolynomial;
+            }
+        }
+    }
+
+    void generateCoordinateFunctions () {
+        for (int i=0; i<FunctionsCount; i++) {
+            this->coordinateFunctions[i].kill();
+            this->coordinateFunctions[i].SetDims(
+                    this->generatorDegree, this->maxPolynomial);
+            for (int j=0; j<this->generatorDegree; j++) {
+                for (int x=0; x<this->maxPolynomial; x++) {
+                    this->coordinateFunctions[i][j][x] = // multiplication is
+                        (this->polynomials[i][x] >> j) * 1; // and: F2(+,*)
+                }
             }
         }
     }
@@ -76,6 +99,7 @@ struct CryptoSystem {
         this->P = GF2XModulus(this->p);
         this->generatorDegree = deg(this->p);
         this->maxPolynomial = 1<<this->generatorDegree;
+        //this->generateCoordinateFunctions();
     }
 
     CryptoSystem () {
