@@ -75,7 +75,6 @@ struct CryptoSystem {
     }
 
     void calculateErrorsCoefficients () {
-        long tmp;
         for (long functionNumber=0; functionNumber<FunctionsCount;
                 functionNumber++) {
             this->K[functionNumber].kill();
@@ -141,7 +140,7 @@ struct CryptoSystem {
     static GF2X getPolynomial (unsigned long number) {
         GF2X result(0, 0);
         for (long i=0; number!=0; i++, number>>=1) {
-            if (number&1 == 1) {
+            if ((number&1) == 1) {
                 SetCoeff(result,i);
             }
         }
