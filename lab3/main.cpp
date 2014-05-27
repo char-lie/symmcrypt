@@ -28,11 +28,17 @@ int main (int argsLength, char* args[])
     /* End initialization */
 
     cs->generateIterationPolynomial();
+    LOG("Iteration polynomial generated");
     cs->calculateF();
+    LOG("F calculated");
     cs->calculateG();
-    cs->generateCoordinateFunctions();
+    LOG("G calculated");
+    cs->generateVectorValuedFunctions();
+    LOG("Vector-valued functions generated");
     cs->calculateWeights();
+    LOG("Weights calculated");
     cs->calculateErrorsCoefficients();
+    LOG("Errors coefficients calculated");
 
     //LOG(cs->weights[0]);
     return 0;

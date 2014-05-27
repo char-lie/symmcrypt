@@ -15,16 +15,16 @@ struct CryptoSystem {
 
     static const long FunctionsCount = 2;
     Vec<GF2X> polynomials[FunctionsCount];
-    Mat<GF2X> coordinateFunctions[FunctionsCount];
+    Mat<GF2X> vectorValuedFunctions[FunctionsCount];
     Vec<long> weights[FunctionsCount];
 
     Vec<long> K[FunctionsCount];
 
-    GF2X f(GF2X x) {
+    GF2X f(const GF2X& x) {
         return PowerMod(x, this->N, this->P);
     }
 
-    GF2X g(GF2X x) {
+    GF2X g(const GF2X& x) {
         return PowerMod(x, this->M, this->P);
     }
 
@@ -60,35 +60,41 @@ struct CryptoSystem {
         }
     }
 
+    /**
+     * Created for code cleareness in ErrorsCoefficients calculation
+     * vvf -- vector-valued function
+     **/
+    long calculateErrorsCoefficient (const Vec<GF2X>& vvf, long i) {
+        long result = 0;
+        for (long x=0; x<this->maxPolynomial; x++) {
+            if (vvf[x] +  vvf[x ^ (1<<i)] == 1) {
+                result++;
+            }
+        }
+        return result;
+    }
+
     void calculateErrorsCoefficients () {
         long tmp;
-        Vec<GF2X> currentPolynomial;
         for (long functionNumber=0; functionNumber<FunctionsCount;
                 functionNumber++) {
             this->K[functionNumber].kill();
             this->K[functionNumber].SetLength(this->generatorDegree);
             for (long i=0; i<this->generatorDegree; i++) {
-                K[functionNumber][i] = 0;
-                for (long x=0; x<this->maxPolynomial; x++) {
-                    currentPolynomial =
-                        this->coordinateFunctions[functionNumber][i];
-                    if(currentPolynomial[x] + // plus is xor: F2(+,*)
-                            currentPolynomial[x ^ (1<<i)] == 1) {
-                        K[functionNumber][i]++;
-                    }
-                }
+                K[functionNumber][i] = this->calculateErrorsCoefficient(
+                            this->vectorValuedFunctions[functionNumber][i], i);
             }
         }
     }
 
-    void generateCoordinateFunctions () {
+    void generateVectorValuedFunctions () {
         for (int i=0; i<FunctionsCount; i++) {
-            this->coordinateFunctions[i].kill();
-            this->coordinateFunctions[i].SetDims(
+            this->vectorValuedFunctions[i].kill();
+            this->vectorValuedFunctions[i].SetDims(
                     this->generatorDegree, this->maxPolynomial);
             for (int j=0; j<this->generatorDegree; j++) {
                 for (int x=0; x<this->maxPolynomial; x++) {
-                    this->coordinateFunctions[i][j][x] = // multiplication is
+                    this->vectorValuedFunctions[i][j][x] = // multiplication is
                         (this->polynomials[i][x] >> j) * 1; // and: F2(+,*)
                 }
             }
@@ -112,7 +118,8 @@ struct CryptoSystem {
         this->init();
     }
 
-    CryptoSystem (GF2X generator, long N, long M) : p(generator), N(N), M(M) {
+    CryptoSystem (const GF2X& generator, long N, long M)
+            : p(generator), N(N), M(M) {
         this->init();
     }
 
@@ -121,7 +128,7 @@ struct CryptoSystem {
         this->init();
     }
 
-    static GF2X getPolynomial (ZZ number) {
+    static GF2X getPolynomial (const ZZ& number) {
         GF2X result(0, 0);
         for (long i=0; i<NumBits(number); i++) {
             if (bit(number,i) == 1) {
