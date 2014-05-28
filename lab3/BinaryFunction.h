@@ -32,11 +32,27 @@ struct BinaryFunction {
         return &(this->polynomials);
     }
 
+    Mat<GF2>* generateVectorValuedFunctions () {
+        this->vectorValuedFunctions.kill();
+        this->vectorValuedFunctions.SetDims(this->generatorDegree,
+                this->polynomialsNumber);
+        for (int i=0; i<this->generatorDegree; i++) {
+            for (int x=0; x<this->polynomialsNumber; x++) {
+                this->vectorValuedFunctions[i][x] =
+                    coeff(this->polynomials[x], i);
+                // Using safe function coeff, because degree
+                // of the polynomial can be less than i and
+                // operator[](i) will cause Index Out Of Bounds error
+            }
+        }
+        return &(this->vectorValuedFunctions);
+    }
+
     Vec<long>* calculateWeights () {
         this->weights.kill();
         this->weights.SetLength(this->polynomialsNumber);
-        for (long j=0; j<this->polynomialsNumber; j++) {
-            this->weights[j] = weight(this->polynomials[j]);
+        for (long i=0; i<this->polynomialsNumber; i++) {
+            this->weights[i] = weight(this->polynomials[i]);
         }
         return &(this->weights);
     }
@@ -52,22 +68,6 @@ struct BinaryFunction {
             }
         }
         return &(this->errorsCoefficients);
-    }
-
-    Mat<GF2>* generateVectorValuedFunctions () {
-        this->vectorValuedFunctions.kill();
-        this->vectorValuedFunctions.SetDims(this->generatorDegree,
-                this->polynomialsNumber);
-        for (int j=0; j<this->generatorDegree; j++) {
-            for (int x=0; x<this->polynomialsNumber; x++) {
-                this->vectorValuedFunctions[j][x] =
-                    coeff(this->polynomials[x], j);
-                // Using safe function coeff, because degree
-                // of the polynomial can be less than j and
-                // operator[](j) will cause Index Out Of Bounds error
-            }
-        }
-        return &(this->vectorValuedFunctions);
     }
 
     void init () {
