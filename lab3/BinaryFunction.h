@@ -16,6 +16,7 @@ struct BinaryFunction {
     Mat<GF2> vectorValuedFunctions;
     Vec<long> disbalances;
     Vec<long> errorsCoefficients;
+    Vec<long> walshCoefficients;
 
     long generatorDegree;
     long polynomialsNumber;
@@ -50,12 +51,6 @@ struct BinaryFunction {
 
     Vec<long>* calculateDisbalances () {
         this->disbalances.kill();
-        /*
-        this->disbalances.SetLength(this->polynomialsNumber);
-        for (long i=0; i<this->polynomialsNumber; i++) {
-            this->disbalances[i] = weight(this->polynomials[i]);
-        }
-        */
         this->disbalances.SetLength(this->generatorDegree);
         for (long i=0; i<this->generatorDegree; i++) {
             this->disbalances[i] = polynomialsNumber/2;
@@ -78,6 +73,49 @@ struct BinaryFunction {
             }
         }
         return &(this->errorsCoefficients);
+    }
+
+    long scalarMultiplication (long a, long b) {
+        long result = a&b;
+        const long parity = 0x6996;
+        /*
+        while (result>1) {
+            result ^= (result & 1);
+            result >>= 1;
+        }
+        */
+        return (((parity >> (result & 0x0f)) ^ (parity >> (result >> 4))) ^
+            ((parity >> ((result>>8) & 0x0f)) ^ (parity >> ((result>>8) >> 4))) ^
+            ((parity >> ((result>>16) & 0x0f)) ^ (parity >> ((result>>32) >> 4))) ^
+            ((parity >> ((result>>24) & 0x0f)) ^ (parity >> ((result>>24) >> 4))))
+                & 0x01;
+    }
+
+    long calculateWalshIteration (long functionNumber, long a) {
+        long result = 0;
+        for (long x=0; x<polynomialsNumber; x++) {
+            result += 1 - 2 * (scalarMultiplication(a,x) ^
+                rep(this->vectorValuedFunctions[functionNumber][x]));
+        }
+        return result;
+    }
+
+    Vec<long>* calculateWalsh () {
+        this->walshCoefficients.kill();
+        this->walshCoefficients.SetLength(generatorDegree);
+        for (long functionNumber=0; functionNumber<generatorDegree;
+                functionNumber++) {
+            LOG("f: "<<functionNumber);
+            this->walshCoefficients[functionNumber] = 0;
+            for (long a=0; a<polynomialsNumber; a++) {
+                this->walshCoefficients[functionNumber] +=
+                    calculateWalshIteration(functionNumber, a);
+                if (a%1000 == 0) {
+                    LOG("a: "<<a);
+                }
+            }
+        }
+        return &(this->walshCoefficients);
     }
 
     void init () {

@@ -21,8 +21,9 @@ struct CryptoSystem {
     Vec<GF2X> polynomials[FUNCTIONS_COUNT];
     Mat<GF2> vectorValuedFunctions[FUNCTIONS_COUNT];
     Vec<long> disbalances[FUNCTIONS_COUNT];
+    Vec<long> walshCoefficients[FUNCTIONS_COUNT];
 
-    Vec<long> K[FUNCTIONS_COUNT];
+    Vec<long> errorsCoefficients[FUNCTIONS_COUNT];
 
     GF2X f(const GF2X& x) {
         return PowerMod(x, this->N, this->P);
@@ -61,8 +62,16 @@ struct CryptoSystem {
     void calculateErrorsCoefficients () {
         for (long functionNumber=0; functionNumber<FUNCTIONS_COUNT;
                 functionNumber++) {
-            this->K[functionNumber] = *(this->
+            this->errorsCoefficients[functionNumber] = *(this->
                 binaryFunctions[functionNumber].calculateErrorsCoefficients());
+        }
+    }
+
+    void calculateWalsh () {
+        for (long functionNumber=0; functionNumber<FUNCTIONS_COUNT;
+                functionNumber++) {
+            this->walshCoefficients[functionNumber] = *(this->
+                binaryFunctions[functionNumber].calculateWalsh());
         }
     }
 
@@ -81,7 +90,6 @@ struct CryptoSystem {
         this->maxPolynomial = 1<<this->generatorDegree;
         this->binaryFunctions[0].init(p, this->N);
         this->binaryFunctions[1].init(p, this->M);
-        //this->generateCoordinateFunctions();
     }
 
     CryptoSystem () {
