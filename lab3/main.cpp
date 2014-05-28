@@ -35,6 +35,7 @@ int main (int argsLength, char* args[])
     LOG("G calculated");
     cs->generateVectorValuedFunctions();
     LOG("Vector-valued functions generated");
+    //cout << cs->vectorValuedFunctions[0];
     cs->calculateWeights();
     LOG("Weights calculated");
     cs->calculateErrorsCoefficients();
