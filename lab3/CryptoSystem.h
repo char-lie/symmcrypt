@@ -20,7 +20,7 @@ struct CryptoSystem {
 
     Vec<GF2X> polynomials[FUNCTIONS_COUNT];
     Mat<GF2> vectorValuedFunctions[FUNCTIONS_COUNT];
-    Vec<long> weights[FUNCTIONS_COUNT];
+    Vec<long> disbalances[FUNCTIONS_COUNT];
 
     Vec<long> K[FUNCTIONS_COUNT];
 
@@ -50,11 +50,11 @@ struct CryptoSystem {
                 this->iterationPolynomial));
     }
 
-    void calculateWeights () {
+    void calculateDisbalances () {
         for (long functionNumber=0; functionNumber<this->FUNCTIONS_COUNT;
                 functionNumber++) {
-            this->weights[functionNumber] = *(this->
-                    binaryFunctions[functionNumber].calculateWeights());
+            this->disbalances[functionNumber] = *(this->
+                    binaryFunctions[functionNumber].calculateDisbalances());
         }
     }
 

@@ -35,12 +35,10 @@ int main (int argsLength, char* args[])
     LOG("G calculated");
     cs->generateVectorValuedFunctions();
     LOG("Vector-valued functions generated");
-    //cout << cs->vectorValuedFunctions[0];
-    cs->calculateWeights();
-    LOG("Weights calculated");
+    cs->calculateDisbalances();
+    LOG("Disbalances calculated");
     cs->calculateErrorsCoefficients();
     LOG("Errors coefficients calculated");
 
-    //LOG(cs->weights[0]);
     return 0;
 }

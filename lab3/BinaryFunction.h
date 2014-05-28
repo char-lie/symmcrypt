@@ -14,7 +14,7 @@ struct BinaryFunction {
     GF2XModulus modulus;
 
     Mat<GF2> vectorValuedFunctions;
-    Vec<long> weights;
+    Vec<long> disbalances;
     Vec<long> errorsCoefficients;
 
     long generatorDegree;
@@ -48,13 +48,23 @@ struct BinaryFunction {
         return &(this->vectorValuedFunctions);
     }
 
-    Vec<long>* calculateWeights () {
-        this->weights.kill();
-        this->weights.SetLength(this->polynomialsNumber);
+    Vec<long>* calculateDisbalances () {
+        this->disbalances.kill();
+        /*
+        this->disbalances.SetLength(this->polynomialsNumber);
         for (long i=0; i<this->polynomialsNumber; i++) {
-            this->weights[i] = weight(this->polynomials[i]);
+            this->disbalances[i] = weight(this->polynomials[i]);
         }
-        return &(this->weights);
+        */
+        this->disbalances.SetLength(this->generatorDegree);
+        for (long i=0; i<this->generatorDegree; i++) {
+            this->disbalances[i] = polynomialsNumber/2;
+            for (long j=0; j<polynomialsNumber; j++) {
+                this->disbalances[i] -= rep(this->
+                        vectorValuedFunctions[i][j]);
+            }
+        }
+        return &(this->disbalances);
     }
 
     Vec<long>* calculateErrorsCoefficients () {
