@@ -3,6 +3,7 @@
 #include <NTL/GF2X.h>
 #include <NTL/matrix.h>
 #include <NTL/vector.h>
+#include "sizes.h"
 using namespace std;
 using namespace NTL;
 
@@ -14,9 +15,10 @@ struct BinaryFunction {
     GF2XModulus modulus;
 
     Mat<GF2> vectorValuedFunctions;
+    Mat<long> longVectorValuedFunctions;
     Vec<long> disbalances;
     Vec<long> errorsCoefficients;
-    Vec<long> walshCoefficients;
+    Mat<long> walshCoefficients;
 
     long generatorDegree;
     long polynomialsNumber;
@@ -49,14 +51,26 @@ struct BinaryFunction {
         return &(this->vectorValuedFunctions);
     }
 
+    Mat<long>* generateLongVectorValuedFunctions () {
+        this->longVectorValuedFunctions.kill();
+        this->longVectorValuedFunctions.SetDims(this->generatorDegree,
+                this->polynomialsNumber);
+        for (int i=0; i<this->generatorDegree; i++) {
+            for (int x=0; x<this->polynomialsNumber; x++) {
+                this->longVectorValuedFunctions[i][x] =
+                    rep(this->vectorValuedFunctions[i][x]);
+            }
+        }
+        return &(this->longVectorValuedFunctions);
+    }
+
     Vec<long>* calculateDisbalances () {
         this->disbalances.kill();
         this->disbalances.SetLength(this->generatorDegree);
         for (long i=0; i<this->generatorDegree; i++) {
             this->disbalances[i] = polynomialsNumber/2;
             for (long j=0; j<polynomialsNumber; j++) {
-                this->disbalances[i] -= rep(this->
-                        vectorValuedFunctions[i][j]);
+                this->disbalances[i] -= this->longVectorValuedFunctions[i][j];
             }
         }
         return &(this->disbalances);
@@ -68,51 +82,32 @@ struct BinaryFunction {
         for (long i=0; i<this->generatorDegree; i++) {
             errorsCoefficients[i] = 0;
             for (long x=0; x<this->polynomialsNumber; x++) {
-                errorsCoefficients[i] += rep(this->vectorValuedFunctions[i][x] +
-                        this->vectorValuedFunctions[i][x ^ (1<<i)]);
+                errorsCoefficients[i] += this->longVectorValuedFunctions[i][x] +
+                        this->longVectorValuedFunctions[i][x ^ (1<<i)];
             }
         }
         return &(this->errorsCoefficients);
     }
 
-    long scalarMultiplication (long a, long b) {
-        long result = a&b;
-        const long parity = 0x6996;
-        /*
-        while (result>1) {
-            result ^= (result & 1);
-            result >>= 1;
-        }
-        */
-        return (((parity >> (result & 0x0f)) ^ (parity >> (result >> 4))) ^
-            ((parity >> ((result>>8) & 0x0f)) ^ (parity >> ((result>>8) >> 4))) ^
-            ((parity >> ((result>>16) & 0x0f)) ^ (parity >> ((result>>32) >> 4))) ^
-            ((parity >> ((result>>24) & 0x0f)) ^ (parity >> ((result>>24) >> 4))))
-                & 0x01;
-    }
-
     long calculateWalshIteration (long functionNumber, long a) {
         long result = 0;
         for (long x=0; x<polynomialsNumber; x++) {
-            result += 1 - 2 * (scalarMultiplication(a,x) ^
-                rep(this->vectorValuedFunctions[functionNumber][x]));
+            result += SIZES[a&x] ^
+                this->longVectorValuedFunctions[functionNumber][x];
         }
+        result = polynomialsNumber - 2 * result;
         return result;
     }
 
-    Vec<long>* calculateWalsh () {
+    Mat<long>* calculateWalsh () {
         this->walshCoefficients.kill();
-        this->walshCoefficients.SetLength(generatorDegree);
+        this->walshCoefficients.SetDims(generatorDegree, polynomialsNumber);
         for (long functionNumber=0; functionNumber<generatorDegree;
                 functionNumber++) {
-            LOG("f: "<<functionNumber);
-            this->walshCoefficients[functionNumber] = 0;
+            LOG("functionNumber: " << functionNumber);
             for (long a=0; a<polynomialsNumber; a++) {
-                this->walshCoefficients[functionNumber] +=
+                this->walshCoefficients[functionNumber][a] =
                     calculateWalshIteration(functionNumber, a);
-                if (a%1000 == 0) {
-                    LOG("a: "<<a);
-                }
             }
         }
         return &(this->walshCoefficients);

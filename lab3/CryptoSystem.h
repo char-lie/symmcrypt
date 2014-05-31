@@ -20,8 +20,9 @@ struct CryptoSystem {
 
     Vec<GF2X> polynomials[FUNCTIONS_COUNT];
     Mat<GF2> vectorValuedFunctions[FUNCTIONS_COUNT];
+    Mat<long> longVectorValuedFunctions[FUNCTIONS_COUNT];
     Vec<long> disbalances[FUNCTIONS_COUNT];
-    Vec<long> walshCoefficients[FUNCTIONS_COUNT];
+    Mat<long> walshCoefficients[FUNCTIONS_COUNT];
 
     Vec<long> errorsCoefficients[FUNCTIONS_COUNT];
 
@@ -70,6 +71,7 @@ struct CryptoSystem {
     void calculateWalsh () {
         for (long functionNumber=0; functionNumber<FUNCTIONS_COUNT;
                 functionNumber++) {
+            LOG("Calculating function " << functionNumber);
             this->walshCoefficients[functionNumber] = *(this->
                 binaryFunctions[functionNumber].calculateWalsh());
         }
@@ -81,6 +83,15 @@ struct CryptoSystem {
             this->vectorValuedFunctions[functionNumber] = *(this->
                     binaryFunctions[functionNumber].
                     generateVectorValuedFunctions());
+        }
+    }
+
+    void generateLongVectorValuedFunctions () {
+        for (int functionNumber=0; functionNumber<FUNCTIONS_COUNT;
+                functionNumber++) {
+            this->longVectorValuedFunctions[functionNumber] = *(this->
+                    binaryFunctions[functionNumber].
+                    generateLongVectorValuedFunctions());
         }
     }
 

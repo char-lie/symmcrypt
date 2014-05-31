@@ -26,7 +26,7 @@ int main (int argsLength, char* args[])
     /* Initialize cryptosystem */
     CryptoSystem *cs = new CryptoSystem(pNumber, N, M);
     /* Check data */
-    LOG("Generator: " << cs->p);
+    LOG("Generator: " << cs->p << ", degree: " << deg(cs->p));
     LOG("N: " << cs->N);
     LOG("M: " << cs->M);
     LOG("");
@@ -42,17 +42,23 @@ int main (int argsLength, char* args[])
     LOG("G calculated");
     cs->generateVectorValuedFunctions();
     LOG("Vector-valued functions generated");
+    cs->generateLongVectorValuedFunctions();
+    LOG("Vector-valued functions transformed from GL2 to LONG");
     LOG("");
-
 
     LOG("CALCULATIONS");
     cs->calculateDisbalances();
     LOG("Disbalances calculated");
     cs->calculateErrorsCoefficients();
     LOG("Errors coefficients calculated");
+    /*
     cs->calculateWalsh();
     LOG("Walsh coefficients calculated");
     LOG("");
+
+    cout << "WALSH1" << endl << cs->walshCoefficients[0] << endl;
+    cout << "WALSH2" << endl << cs->walshCoefficients[1] << endl;
+    */
 
     return 0;
 }
