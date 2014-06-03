@@ -37,7 +37,7 @@ struct CryptoSystem {
     void generateIterationPolynomial () {
         iterationPolynomial.kill();
         iterationPolynomial.SetLength(this->maxPolynomial);
-        for (long i=0; i<this->maxPolynomial; i++) {
+        for (long i = 0; i < this->maxPolynomial; i++) {
             iterationPolynomial[i] = CryptoSystem::getPolynomial(i);
         }
     }
@@ -53,7 +53,7 @@ struct CryptoSystem {
     }
 
     void calculateDisbalances () {
-        for (long functionNumber=0; functionNumber<this->FUNCTIONS_COUNT;
+        for (long functionNumber = 0; functionNumber<this->FUNCTIONS_COUNT;
                 functionNumber++) {
             this->disbalances[functionNumber] = *(this->
                     binaryFunctions[functionNumber].calculateDisbalances());
@@ -61,7 +61,7 @@ struct CryptoSystem {
     }
 
     void calculateErrorsCoefficients () {
-        for (long functionNumber=0; functionNumber<FUNCTIONS_COUNT;
+        for (long functionNumber = 0; functionNumber<FUNCTIONS_COUNT;
                 functionNumber++) {
             this->errorsCoefficients[functionNumber] = *(this->
                 binaryFunctions[functionNumber].calculateErrorsCoefficients());
@@ -69,7 +69,7 @@ struct CryptoSystem {
     }
 
     void calculateWalsh () {
-        for (long functionNumber=0; functionNumber<FUNCTIONS_COUNT;
+        for (long functionNumber = 0; functionNumber<FUNCTIONS_COUNT;
                 functionNumber++) {
             LOG("Calculating function " << functionNumber);
             this->walshCoefficients[functionNumber] = *(this->
@@ -78,7 +78,7 @@ struct CryptoSystem {
     }
 
     void generateVectorValuedFunctions () {
-        for (int functionNumber=0; functionNumber<FUNCTIONS_COUNT;
+        for (int functionNumber = 0; functionNumber<FUNCTIONS_COUNT;
                 functionNumber++) {
             this->vectorValuedFunctions[functionNumber] = *(this->
                     binaryFunctions[functionNumber].
@@ -87,7 +87,7 @@ struct CryptoSystem {
     }
 
     void generateLongVectorValuedFunctions () {
-        for (int functionNumber=0; functionNumber<FUNCTIONS_COUNT;
+        for (int functionNumber = 0; functionNumber<FUNCTIONS_COUNT;
                 functionNumber++) {
             this->longVectorValuedFunctions[functionNumber] = *(this->
                     binaryFunctions[functionNumber].
@@ -98,7 +98,7 @@ struct CryptoSystem {
     void init () {
         this->P = GF2XModulus(this->p);
         this->generatorDegree = deg(this->p);
-        this->maxPolynomial = 1<<this->generatorDegree;
+        this->maxPolynomial = 1 << this->generatorDegree;
         this->binaryFunctions[0].init(p, this->N);
         this->binaryFunctions[1].init(p, this->M);
     }
@@ -125,7 +125,7 @@ struct CryptoSystem {
 
     static GF2X getPolynomial (const ZZ& number) {
         GF2X result(0, 0);
-        for (long i=0; i<NumBits(number); i++) {
+        for (long i = 0; i < NumBits(number); i++) {
             if (bit(number,i) == 1) {
                 SetCoeff(result,i);
             }
@@ -135,7 +135,7 @@ struct CryptoSystem {
 
     static GF2X getPolynomial (unsigned long number) {
         GF2X result(0, 0);
-        for (long i=0; number!=0; i++, number>>=1) {
+        for (long i = 0; number != 0; i++, number >>= 1) {
             if ((number&1) == 1) {
                 SetCoeff(result,i);
             }
