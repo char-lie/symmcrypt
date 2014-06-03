@@ -137,14 +137,13 @@ struct BinaryFunction {
     Mat<long>* calculateWalsh () {
         this->walshCoefficients.kill();
         this->walshCoefficients.SetDims(generatorDegree, polynomialsNumber);
-        //long tmp, a, x;
         long *longWalshCoefficients = new long[this->polynomialsNumber];
         for (long functionNumber = 0; functionNumber<generatorDegree;
                 functionNumber++) {
             fastWalsh(functionNumber, longWalshCoefficients);
             /*
             LOG("functionNumber: " << functionNumber);
-            for (a = 0; a<polynomialsNumber; a++) {
+            for (long a = 0; a<polynomialsNumber; a++) {
                 this->walshCoefficients[functionNumber][a] = 
                     calculateWalshIteration(functionNumber, a);
             }
