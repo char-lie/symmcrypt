@@ -55,10 +55,8 @@ int main (int argsLength, char* args[])
     LOG("Walsh coefficients calculated");
     LOG("");
 
-    /*
     cout << "WALSH1" << endl << cs->walshCoefficients[0] << endl;
     cout << "WALSH2" << endl << cs->walshCoefficients[1] << endl;
-    */
 
     return 0;
 }

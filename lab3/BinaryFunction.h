@@ -18,7 +18,6 @@ struct BinaryFunction {
     Mat<long> longVectorValuedFunctions;
     Vec<long> disbalances;
     Vec<long> errorsCoefficients;
-    Mat<long> fourierCoefficients;
     Mat<long> walshCoefficients;
 
     long generatorDegree;
@@ -103,68 +102,53 @@ struct BinaryFunction {
         return result;
     }
 
-    // Should be lambda in calculateFourierCoefficients :(
-    void calculateFourierCoefficientsRecursive (long *previousStep, long size) {
+    // Should be lambda in fastWalsh :(
+    void fastWalshRecursive (long *previousStep, long size) {
         if (size == 1) {
             return;
         }
         else {
             long i, j, tmp;
-            size >>= 1;
+            size /= 2;
             for (i = 0, j = size; i < size; i++, j++) {
                 tmp = previousStep[i];
                 previousStep[i] += previousStep[j];
                 previousStep[j] = tmp - previousStep[j];
             }
-            calculateFourierCoefficientsRecursive(&previousStep[0], size);
-            calculateFourierCoefficientsRecursive(&previousStep[size], size);
+            fastWalshRecursive(&previousStep[0], size);
+            fastWalshRecursive(&previousStep[size], size);
             return;
         }
     }
 
-    void calculateFourierCoefficients (const long functionNumber,
-            const long a, long *longFourierCoefficients) {
+    void fastWalsh(const long functionNumber, long *longWalshCoefficients) {
         long x;
         for (x = 0; x < this->polynomialsNumber; x++) {
-            longFourierCoefficients[x] =
-                this->longVectorValuedFunctions[functionNumber][x];
+            longWalshCoefficients[x] = 1 -
+                2 * this->longVectorValuedFunctions[functionNumber][x];
         }
-        calculateFourierCoefficientsRecursive(longFourierCoefficients,
-                this->polynomialsNumber);
+        fastWalshRecursive(longWalshCoefficients, this->polynomialsNumber);
         for (x = 0; x < this->polynomialsNumber; x++) {
-            this->fourierCoefficients[functionNumber][x] =
-                longFourierCoefficients[x];
+            this->walshCoefficients[functionNumber][x] =
+                longWalshCoefficients[x];
         }
-    }
-
-    long calculateWalshFromFourie (const long fourierCoefficient,
-            const long a) {
-        long result = - this->c2n1 * fourierCoefficient;
-        if (a == 0) {
-            result += this->c2n;
-        }
-        return result;
     }
 
     Mat<long>* calculateWalsh () {
         this->walshCoefficients.kill();
         this->walshCoefficients.SetDims(generatorDegree, polynomialsNumber);
-        this->fourierCoefficients.kill();
-        this->fourierCoefficients.SetDims(generatorDegree, polynomialsNumber);
-        long tmp, a, x;
-        long *longFourierCoefficients = new long[this->polynomialsNumber];
+        //long tmp, a, x;
+        long *longWalshCoefficients = new long[this->polynomialsNumber];
         for (long functionNumber = 0; functionNumber<generatorDegree;
                 functionNumber++) {
+            fastWalsh(functionNumber, longWalshCoefficients);
+            /*
             LOG("functionNumber: " << functionNumber);
             for (a = 0; a<polynomialsNumber; a++) {
-                /*
-                // VERY SLOW
-                calculateFourierCoefficients(functionNumber, a,
-                        longFourierCoefficients);
-                    */
                 this->walshCoefficients[functionNumber][a] = 
                     calculateWalshIteration(functionNumber, a);
             }
+            */
         }
         return &(this->walshCoefficients);
     }
